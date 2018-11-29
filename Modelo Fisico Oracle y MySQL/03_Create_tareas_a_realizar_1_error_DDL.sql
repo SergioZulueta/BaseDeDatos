@@ -137,9 +137,9 @@ ALTER TABLE ventas ADD (PVP NUMBER (4) DEFAULT 0);
 
 --8
 
-ALTER TABLE ventas DROP 
-PVP;
+--ALTER TABLE ventas DROP 
+--PVP;
 
-ALTER TABLE pedidos DROP
-PVP;
+--ALTER TABLE pedidos DROP
+--PVP;
 
