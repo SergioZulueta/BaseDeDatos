@@ -6,13 +6,13 @@ DESC USER_CONSTRAINTS;
 
 SELECT *
 FROM USER_CONSTRAINTS 
-WHERE TABLE_NAME = 'ALUMNOS';
+WHERE UPPER(TABLE_NAME) = 'ALUMNOS';
 
 /*Para cada restricción debes indicar el nombre de la restricción, el nombre de la tabla y el tipo de restricción.
 ¿Hay alguna restricción NOT NULL?. ¿De qué tipo es?.
 Nos dán las siguientes sentencias INSERT, para añadir al final de nuestro script SQL.*/
     
-SELECT TABLE_NAME, CONSTRAINT_NAME, CONSTRAINT_TYPE
+SELECT TABLE_NAME, CONSTRAINT_NAME, CONSTRAINT_TYPE, SEARCH_CONDITION
 FROM USER_CONSTRAINTS 
 WHERE TABLE_NAME = 'ALUMNOS';
 
