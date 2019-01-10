@@ -61,9 +61,25 @@ WHERE OFICIO = (SELECT OFICIO
                 FROM EMPLE
                 WHERE EMP_NO = 7566);
 /*Borrar todos los departamentos de la tabla DEPART para los cuales no existan empleados en EMPLE.*/
+DELETE FROM DEPART 
+WHERE DEPT_NO = (SELECT DEPT_NO
+                FROM EMPLE
+                WHERE EMP_NO IS NULL);
 
 /*Eliminar a todos los empleados que están en un departamento cuyo nombre contiene una 'O'.*/
+SELECT APELLIDO FROM EMPLE;
+
+DELETE FROM EMPLE
+WHERE APELLIDO LIKE '%O%';
 
 /*Incrementa el salario del empleado de apellido REY. Su nuevo salario será el que tenía antes más un importe que corresponde con la comisión que tiene ARROYO.*/
+SELECT * FROM EMPLE;
+
+UPDATE EMPLE
+SET SALARIO = SALARIO + (SELECT COMISION_PCT
+                        FROM EMPLE
+                        WHERE UPPER(APELLIDO)='ARROYO')
+WHERE UPPER(APELLIDO)='REY';
 
 /*Deshaz toda la transacción.*/
+ROLLBACK;
