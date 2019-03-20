@@ -1,8 +1,11 @@
+
+set serveroutput on
 -- EJERCICIO 1
 /* 
- Autor: xxxx
- Fecha: xxxxx
- Descripcion: xxxxx
+ Autor:Sergio Zulueta
+ Fecha: 20/03/2019
+ Descripcion: escribir una cadena de caracteres que nos muestre
+ el error de que es demasiado larga
 */
 --Excepciones Oracle PREDEFINIDAS
 Declare
@@ -17,8 +20,8 @@ End ;
 
 -- EJERCICIO 2
 /* 
- Autor: xxxx
- Fecha: xxxxx
+ Autor:Sergio Zulueta
+ Fecha: 20/03/2019
  Descripcion: xxxxx
 */
 --PRAGMA: Excepciones Oracle personalizadas
@@ -41,8 +44,8 @@ End ;
 
 -- EJERCICIO 3
 /* 
- Autor: xxxx
- Fecha: xxxxx
+ Autor:Sergio Zulueta
+ Fecha: 20/03/2019
  Descripcion: xxxxx
 */
 
@@ -50,7 +53,7 @@ Declare
        LC$C1    varchar2(20) := 'Frase larguisima';
        LC$Cadena varchar2(10) ;
        LE$mas_long exception ;
-       pragma XXXXXXXX ;
+       pragma exception_init(LE$mas_long, -6502) ;
 Begin
       Begin
           LC$Cadena := LC$C1;
@@ -59,13 +62,13 @@ Begin
             LC$Cadena := Substr( LC$C1, 1, 10 ) ;
       End ;
       -- Sacar por pantalla el contenido de la variable LC$Cadena 
-      dbms_output.put_line(xxxxx) ;
+      dbms_output.put_line(LC$Cadena) ;
 End ;
 
 -- EJERCICIO 4
 /* 
- Autor: xxxx
- Fecha: xxxxx
+ Autor:Sergio Zulueta
+ Fecha: 20/03/2019
  Descripcion: xxxxx
 */
 --EXCEPCIONES PROPIAS
@@ -88,8 +91,8 @@ End ;
 
 -- EJERCICIO 5
 /* 
- Autor: xxxx
- Fecha: xxxxx
+ Autor:Sergio Zulueta
+ Fecha: 20/03/2019
  Descripcion: xxxxx
 */
 --EXCEPCIONES PROPIAS
@@ -103,7 +106,7 @@ Begin
         dbms_output.put_line( to_char( LN$I) ) ;
         If LN$I > 20 Then
            -- Provocar la excepcion LE$Fin
-           XXXXXXXX ;
+           RAISE LE$Fin ;
         End if ;
       End loop ;
 Exception
