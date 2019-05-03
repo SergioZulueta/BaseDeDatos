@@ -17,9 +17,6 @@ END AUMENTAR_SALARIO_2;
 
 
 
-
-
-
 /*2. Escribe un procedimiento, llamado cambio_oficio,  que modifique el oficio de los empleados de la tabla EMPLE que ganan más de 300000. El nuevo oficio será el oficio que se le pase como parámetro, pero teniendo en cuenta lo siguiente:
 si en el momento de la actualización, el número de empleados que hay en su departamento con dicho oficio es superior a 2, su nuevo oficio NO SERA el que nos han pasado, sino que será el oficio en el que menos empleados haya de su departamento. 
 
@@ -30,3 +27,28 @@ El procedimiento antes de finalizar, informará por pantalla el número de emplead
 Controlar posibles excepciones:
 El oficio que se le pasa en la llamada es un oficio nuevo (no existe nadie con dicho oficio en EMPLE).
 Para cualquier otra excepción, mostrar el código de la excepción ( función SQLCODE) y el mensaje de error (SQLERRM).*/
+
+      CREATE OR REPLACE PROCEDURE CAMBIO_OFICIO
+      (P_OFICIO EMPLE.OFICIO%TYPE)
+      IS
+      SALARIO_EMPLE EMPLE.SALARIO%TYPE;
+      
+      CURSOR C_OFICIOS  IS
+      SELECT EMP_NO,OFICIO,DEPT_NO
+      FROM EMPLE
+      WHERE SALARIO > 300000;
+      VREG C_OFICIOS%ROWTYPE;
+      V_OFICIO_EMPLE_DEPART EMPLE.OFICIO%TYPE;
+      BEGIN
+      OPEN C_OFICIOS;
+      LOOP
+      FETCH C_OFICIOS INTO VREG;
+      SELECT COUNT(EMP_NO) INTO V_OFICIO_EMPLE_DEPART FROM EMPLE WHERE UPPER(OFICIO) = P_OFICIO AND DEPT_NO = VREG.DEPT_NO;
+      IF V_OFICIO_EMPLE_DEPART > 2 
+      THEN NULL; --SELECT DE MINIMO
+     
+      ELSE NULL; -- UPDATE 
+      END IF;
+      end loop;
+      END CAMBIO_OFICIO;
+
