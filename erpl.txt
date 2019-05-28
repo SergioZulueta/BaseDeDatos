@@ -1,0 +1,115 @@
+/*1.-Crear una función denominada  nmax_oficio que calcule el número de empleados
+que hay para un determinado oficio.*/
+
+CREATE OR REPLACE FUNCTION NMAX_OFICIO
+(P_OFICIO IN EMPLE.OFICIO%TYPE)
+RETURN NUMBER
+IS
+  V_NUM_EMPLE NUMBER;
+BEGIN
+  SELECT MAX(COUNT(*))
+  INTO V_NUM_EMPLE
+  FROM EMPLE
+  WHERE UPPER(OFICIO) = UPPER(P_OFICIO)
+  GROUP BY DEPT_NO;
+  RETURN V_NUM_EMPLE;
+END;
+
+set serveroutput on
+DECLARE
+  v_count NUMBER;
+BEGIN
+  v_count := NMAX_OFICIO('SECRETARIA');
+  dbms_output.put_line(v_count);
+END;
+
+
+/*2.  Crea un  procedimiento almacenado, llamado num_emple_oficio, que averigüe 
+el código y nombre del departamento con más personal para el oficio que nos 
+pasen como parámetro. El procedimiento enviará a "Java" el número y el nombre 
+del departamento. Si el número máximo es superior a 5 se enviará a "Java", el 
+número y nombre de departamento, así como la cadena 'MAS DE 5 empleados'.
+En caso de no existir información para ese oficio se enviará a "Java" el mensaje 
+'NO hay empleados con ese oficio'.
+Si hubiera mas de un departamento con el mismo número máximo de empleados se 
+enviará a "Java" el mensaje 'Hay mas de un departamento con el mismo número de empleados'.
+       
+El procedimiento usará la función  nmax_oficio. */
+
+DESC DEPART;
+
+SELECT * FROM DEPART;
+SELECT * FROM EMPLE;
+
+CREATE OR REPLACE PROCEDURE NUM_EMPLE_OFICIO
+(P_OFICIO IN EMPLE.OFICIO%TYPE,
+P_CURSOR OUT SYS_REFCURSOR,
+ P_ESTADO OUT VARCHAR2)
+IS
+  V_DEPT_NO NUMBER(3);
+  V_DNOMBRE VARCHAR(20);
+BEGIN
+  IF NMAX_OFICIO(P_OFICIO)>5 THEN
+    P_ESTADO:='MAS DE 5 EMPLEADOS';
+  ELSIF NMAX_OFICIO(P_OFICIO) IS NULL THEN
+    P_ESTADO:='0 EMPLEADOS';
+  END IF;
+  OPEN P_CURSOR FOR
+  SELECT D.DEPT_NO,D.DNOMBRE INTO V_DEPT_NO,V_DNOMBRE
+  FROM DEPART D,EMPLE E
+  WHERE D.DEPT_NO=E.DEPT_NO
+  AND D.DEPT_NO =(SELECT DEPT_NO
+                 FROM EMPLE 
+                 WHERE UPPER(OFICIO)=UPPER(P_OFICIO)
+                 GROUP BY DEPT_NO
+                 HAVING  COUNT(EMP_NO)= (SELECT NMAX_OFICIO(P_OFICIO) FROM EMPLE GROUP BY DEPT_NO));
+END;  
+
+
+/* HACIENDO LA SUBCONSULTA*/
+
+CREATE OR REPLACE PROCEDURE COMOELDEARRIBAPEROSINVALER
+(P_OFICIO IN EMPLE.OFICIO%TYPE)
+IS
+  V_DEPT_NO NUMBER(3);
+  V_DNOMBRE VARCHAR(20);
+BEGIN
+  SELECT DEPT_NO,DNOMBRE INTO V_DEPT_NO,V_DNOMBRE
+  FROM DEPART D,EMPLE E
+  WHERE D.DEPT_NO=E.DEPT_NO
+  AND D.DEPT_NO =(SELECT DEPT_NO
+                 FROM EMPLE 
+                 GROUP BY DEPT_NO
+                 HAVING  COUNT(EMP_NO)= (SELECT MAX(COUNT(EMP_NO)) FROM EMPLE GROUP BY DEPT_NO))
+  AND UPPER(OFICIO)=P_OFICIO;
+  
+  SELECT MAX(COUNT(DEPT_NO)) 
+  FROM EMPLE
+  GROUP BY DEPT_NO;
+END;  
+
+/*3. Realiza un bloque anónimo que utilizando el procedimiento num_emple_oficio 
+y la función nmax_oficio informe para un oficio concreto el nombre del departamento
+junto a su número de empleados, y si supera los 5 lo informe. En caso de no existir
+nada para ese oficio  debe de informar de esa situación, lo mismo que si hay mas 
+de un departamento con el mismo número de empleados máximo.*/
+
+DECLARE
+  V_OFICIO VARCHAR2(20):='SECRETARIA';
+  P_CURSOR OUT SYS_REFCURSOR;
+  P_ESTADO VARCHAR2(100);
+  V_DEPT_NO DEPART.DEPT_NO%TYPE;
+  V_DNOMBRE DEPART.DNOMBRE%TYPE;
+BEGIN
+--OJO!! NO HAY QUE PONER EXECUTE CUANDO VA DENTRO DE UN BLOQUE ANONIMO
+  NUM_EMPLE_OFICIO(V_OFICIO,P_CURSOR,P_ESTADO); 
+  FETCH P_CURSOR INTO V_DEPT_NO,V_DNOMBRE;--LEO EL PRIMERO
+  IF P_CURSOR%NOTFOUND THEN
+  DBMS_OUTPUT.PUT_LINE(P_ESTADO);
+  ELSE
+  WHILE P_CURSOR%FOUND LOOP--REPETITIVA POR SI HAY DEPARTAMENTOS
+  DBMS_OUTPUT.PUT_LINE('EL DEPARTAMENTO'||TO_CAHR(V_DEPT_NO) || ' ' || V_DNOBRE ||' TIENE '||TO_CHAR(NMAX_OFICIO(V_OFICIO))||' EMPLEADOS '||P_ESTADO);
+  FETCH P_CURSOR INTO V_DEPT_NO,V_DNOMBRE;--CUANDO ES WHILE HACER EL FETCH ANTES Y DESPUES PORQUE SINO SE QUEDA EN BUCLE
+  END LOOP;
+  END IF;
+END;
